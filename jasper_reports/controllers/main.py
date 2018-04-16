@@ -56,6 +56,9 @@ class ReportController(report.ReportController):
                 context.update(data['context'])
             jasper = report_jas.with_context(
                 context).render_jasper(docids, data=data)
+            output_format =  jasper[1]
+            output_file = jasper[0]
+
             pdfhttpheaders = [
                 ('Content-Type', 'application/pdf'),
                 ('Content-Length', len(jasper)),
@@ -64,7 +67,7 @@ class ReportController(report.ReportController):
                     'attachment; filename=' + str(report_jas.name) + '.pdf'
                 )
             ]
-            return request.make_response(jasper, headers=pdfhttpheaders)
+            return request.make_response(output_file, headers=pdfhttpheaders)
         return super(ReportController, self).report_routes(
             reportname, docids, converter, **data
         )

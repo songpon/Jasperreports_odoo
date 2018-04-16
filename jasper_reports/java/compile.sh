@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$JAVA_HOME" ]; then
-	directories="/usr/lib/jvm/java-6-sun-1.6.0.10/bin /usr/lib/j2sdk1.6-sun /usr/lib/j2sdk1.5-sun"
+	directories="/usr/lib/jvm/java-6-sun-1.6.0.10/bin /usr/lib/j2sdk1.6-sun /usr/lib/j2sdk1.5-sun /usr/lib/jvm/java-8-openjdk-amd64/bin"
 	for d in $directories; do
 		if [ -d "$d" ]; then
 			export JAVA_HOME="$d"
