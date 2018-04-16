@@ -28,7 +28,7 @@
 ##############################################################################
 
 from odoo.addons.web.controllers import main as report
-from odoo.http import route, request
+from odoo.http import content_disposition, route, request
 
 import json
 
@@ -58,16 +58,29 @@ class ReportController(report.ReportController):
                 context).render_jasper(docids, data=data)
             output_format =  jasper[1]
             output_file = jasper[0]
+            output_filename = '%s.%s' % (str(report_jas.name),output_format,)
 
-            pdfhttpheaders = [
-                ('Content-Type', 'application/pdf'),
-                ('Content-Length', len(jasper)),
-                (
-                    'Content-Disposition',
-                    'attachment; filename=' + str(report_jas.name) + '.pdf'
-                )
+            ctypes={
+                'csv':'text/csv',
+                'xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'xls':'application/vnd.ms-excel',
+                'pdf':'application/pdf',
+                'doc':'application/msword',
+                'docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'txt':'text/plain',
+                'odt':'application/vnd.oasis.opendocument.text ',
+                'ods':'application/vnd.oasis.opendocument.spreadsheet',
+                'rtf':'application/rtf',
+                'html':'text/html',
+            }
+
+            headers= [
+                ('Content-Type', ctypes[output_format]),
+                ('Content-Length', len(output_file)),
+                ('Content-Disposition', content_disposition(output_filename))
             ]
-            return request.make_response(output_file, headers=pdfhttpheaders)
+
+            return request.make_response(output_file, headers=headers)
         return super(ReportController, self).report_routes(
             reportname, docids, converter, **data
         )
