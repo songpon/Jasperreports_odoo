@@ -41,25 +41,23 @@ class CsvRecordDataGenerator(AbstractDataGenerator):
     def __init__(self, report, records):
         self.report = report
         self.records = records
-        self.temporaryFiles = []
+        self.temporary_files = []
+        #TODO: add binary / Image
 
     # CSV file generation using a list of dictionaries provided by
     # the parser function.
     def generate(self, file_name):
 
-        with open(file_name, 'wb+') as f:
+        # write mode is w instead of wb+ in python2
+        with open(file_name, 'w') as f:
             csv.QUOTE_ALL = True
             field_names = self.report.field_names
             # JasperReports CSV reader requires an extra colon
             # at the end of the line.
             writer = csv.DictWriter(f, field_names + [''], delimiter=',',
                                     quotechar='"')
-            header = {}
 
-            for field in field_names + ['']:
-                header[field] = field
-
-            writer.writerow(header)
+            writer.writeheader()
             error_reported_fields = []
 
             for record in self.records:
@@ -74,12 +72,12 @@ class CsvRecordDataGenerator(AbstractDataGenerator):
                     value = record.get(field, False)
                     if value is False:
                         value = ''
-                    elif isinstance(value, str):
-                        value = value.encode('utf-8')
+                    # elif isinstance(value, str):
+                    #     value = value.encode('utf-8')
                     elif isinstance(value, float):
                         value = '%.10f' % value
-                    elif not isinstance(value, str):
-                        value = str(value)
+                    # elif not isinstance(value, str):
+                    #     value = str(value)
                     row[self.report.fields[field]['name']] = value
 
                 writer.writerow(row)
