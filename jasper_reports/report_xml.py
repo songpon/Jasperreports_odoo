@@ -97,7 +97,7 @@ class ReportXml(models.Model):
     report_type = fields.Selection(selection_add=[("jasper", "Jasper")])
 
     @api.model
-    def render_jasper(self, docids, data):
+    def xrender_jasper(self, docids, data):
         cr, uid, context = self.env.args
         report_model_name = 'report.%s' % self.report_name
         self.env.cr.execute('SELECT id, model FROM '
@@ -110,6 +110,37 @@ class ReportXml(models.Model):
             raise UserError(_('%s model was not found' % report_model_name))
         data.update({'env': self.env, 'model': record.get('model')})
         r = Report(report_model_name, cr, uid, docids, data, context)
+        return r.execute()
+
+    @api.model
+    def render_jasper(self, docids, data=None):
+        # If the report is using a custom model to render its html, we must use it.
+        # Otherwise, fallback on the generic html rendering.
+        report_model_name = 'report.%s' % self.report_name
+        report_model = self.env.get(report_model_name)
+
+        data.update({
+            'doc_ids': docids,
+            'model': self.model,
+            'env': self.env,
+            'data_source': 'model',
+            'jasper_output':data.get('jasper_output','pdf')
+            # 'records':[], # fill by parser generate records
+            # 'docs':[], # default browse report
+        })
+
+        # normally if report_model is not None , it's mean we have parser need to define
+        # using report name by "report"+"module"+"report_name" > report.account.report_xxx_yyy
+        if report_model is not None:
+            data['data_source'] = 'records'
+            data = report_model.get_report_values(docids, data)
+        else:
+            docs = self.env[self.model].browse(docids)
+
+            data.update({
+                'docs':docs,
+            })
+        r = Report(report_model_name,data )
         return r.execute()
 
     @api.model

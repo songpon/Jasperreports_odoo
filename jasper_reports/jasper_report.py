@@ -56,13 +56,15 @@ tools.config['jasperunlink'] = tools.config.get('jasperunlink', True)
 
 
 class Report:
-    def __init__(self, name, cr, uid, ids, data, context):
+    def __init__(self, name, data):
         data.update({'report_type': 'jasper'})
+
         self.name = name
         self.env = data['env']
+        cr, uid, context = self.env.args
         self.cr = cr
         self.uid = uid
-        self.ids = ids
+        self.ids = data['doc_ids']
         self.data = data
         self.model = self.data.get('model', False) or context.get(
             'active_model', False)
@@ -95,6 +97,10 @@ class Report:
 
         if data['jasper_output']:
             self.output_format = data['jasper_output']
+
+        # some report need many output available to select
+        if self.data.get('jasper_output',False):
+            self.output_format = self.data['jasper_output']
 
         self.report_path = data['report_file']
         self.report_path = os.path.join(self.addons_path(), self.report_path)
