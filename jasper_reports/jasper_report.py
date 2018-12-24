@@ -140,7 +140,9 @@ class Report:
         sub_report_data_files = []
         for sub_report_info in self.report.subreports:
             sub_report = sub_report_info['report']
-            if sub_report.language() == 'xpath':
+
+            #if sub_report.language() == 'xpath':
+            if sub_report.language == 'xpath':
                 message = 'Creating CSV '
 
                 if sub_report_info['pathPrefix']:
@@ -162,7 +164,8 @@ class Report:
                 })
                 self.temporary_files.append(sub_report_data_file)
 
-                if sub_report.isHeader():
+                # if sub_report.isHeader():
+                if sub_report.is_header:
                     generator = CsvBrowseDataGenerator(sub_report,
                                                        'res.users', self.env,
                                                        self.cr, self.uid,

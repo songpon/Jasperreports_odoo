@@ -119,6 +119,7 @@ class ReportXml(models.Model):
         report_model_name = 'report.%s' % self.report_name
         report_model = self.env.get(report_model_name)
 
+
         data.update({
             'doc_ids': docids,
             'model': self.model,
